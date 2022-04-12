@@ -1,11 +1,13 @@
 import crypto from 'crypto';
 
-const cryptoHash = (...inputs: any[]) => {
+const cryptoHash = (...inputs: (string | number)[]) => {
     const hash = crypto.createHash('sha256');
-    const sortedInput = inputs.sort();
-    hash.update(sortedInput.join(' '));
+
+    hash.update(inputs.map(input => JSON.stringify(input)).sort().join(' '));
+
     return hash.digest('hex');
-}
+};
+
 
 
 export { cryptoHash }
