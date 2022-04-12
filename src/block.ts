@@ -1,9 +1,13 @@
-import { GENESIS_DATA } from './config'
+import { GENESIS_DATA, MINE_RATE } from './config'
+
 import { cryptoHash } from './utils'
+
 interface IBlock {
     timestamp: number,
     lastHash: string
     hash: string
+    nonce: number;
+    difficulty: number
     data: any
 }
 
@@ -11,13 +15,17 @@ class Block {
     timestamp: number;
     lastHash: string;
     hash: string;
+    nonce: number;
+    difficulty: number;
     data: any;
-    constructor({ timestamp, lastHash, hash, data }: IBlock) {
+
+    constructor({ timestamp, lastHash, hash, nonce, difficulty, data }: IBlock) {
         this.timestamp = timestamp;
         this.lastHash = lastHash;
         this.hash = hash;
+        this.nonce = nonce;
+        this.difficulty = difficulty;
         this.data = data;
-
     }
 
     static genesis(): Block {
@@ -25,15 +33,33 @@ class Block {
     }
 
     static mineBlock({ lastBlock, data }: { lastBlock: Block, data: any }): Block {
-        const timestamp = Date.now();
+        let hash: string, timestamp: number;
         const lastHash = lastBlock.hash;
+        const { difficulty } = lastBlock;
+        let nonce = 0;
+        do {
+            nonce++;
+            timestamp = Date.now();
+            hash = cryptoHash(timestamp, lastHash, data, nonce, difficulty);
+        } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
+
+
         return new this({
             timestamp,
             lastHash,
-            data,
-            hash: cryptoHash(timestamp, lastHash, data)
+            hash: cryptoHash(timestamp, lastHash, data, nonce, difficulty),
+            difficulty,
+            nonce,
+            data
         })
     }
+
+    static adjustDifficulty({ originalBlock, timestamp }: { originalBlock: Block, timestamp: number }): number {
+        const { difficulty } = originalBlock;
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+        return difficulty + 1;
+    }
+
 
 }
 
