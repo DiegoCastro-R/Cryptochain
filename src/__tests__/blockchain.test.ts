@@ -1,6 +1,6 @@
 import { Block } from '../block'
 import { Blockchain } from '../blockchain'
-
+import { cryptoHash } from '../utils'
 describe('Blockchain', () => {
     let blockchain: Blockchain, newChain: Blockchain, originalChain: Block[], errorMock: any;
 
@@ -61,6 +61,31 @@ describe('Blockchain', () => {
                     expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
                 });
             });
+
+            describe('and the chain contains a block with a jumped difficulty', () => {
+                it('returns false', () => {
+                    const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+                    const lastHash = lastBlock.hash;
+                    const timestamp = Date.now();
+                    const nonce = 0;
+                    //@ts-expect-error
+                    const data: string | number = [];
+                    const difficulty = lastBlock.difficulty - 3;
+                    const hash = cryptoHash(timestamp, lastHash, difficulty, nonce, data);
+                    const badBlock = new Block({
+                        timestamp,
+                        lastHash,
+                        hash,
+                        nonce,
+                        difficulty,
+                        data
+                    });
+
+                    blockchain.chain.push(badBlock);
+
+                    expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+                });
+            })
 
 
             describe('and the chain does not contain any invalid blocks', () => {
