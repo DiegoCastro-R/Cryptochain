@@ -1,6 +1,7 @@
 import { GENESIS_DATA, MINE_RATE } from './config'
 
 import { cryptoHash } from './utils'
+import { hexToBinary } from './lib/hex-to-binary'
 
 interface IBlock {
     timestamp: number,
@@ -42,7 +43,7 @@ class Block {
             timestamp = Date.now();
             difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
             hash = cryptoHash(timestamp, lastHash, data, nonce, difficulty);
-        } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
+        } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
 
 
         return new this({
