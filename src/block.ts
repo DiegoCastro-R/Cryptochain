@@ -1,5 +1,5 @@
 import { GENESIS_DATA } from './config'
-import { cryptoHash } from './crypto-hash'
+import { cryptoHash } from './utils'
 interface IBlock {
     timestamp: number,
     lastHash: string

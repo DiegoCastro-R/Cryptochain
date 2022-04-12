@@ -1,6 +1,6 @@
 import { Block } from "../block";
 import { GENESIS_DATA } from '../config';
-import { cryptoHash } from '../crypto-hash'
+import { cryptoHash } from '../utils'
 
 describe('Block', () => {
     const timestamp = Date.now();
